@@ -17,6 +17,7 @@
     "start": "cds-serve"
   },
   "sapux": [
+    "app/cap-igdb-fe-rvd",
     "app/cap-igdb-fe-rvd"
   ]
 }
