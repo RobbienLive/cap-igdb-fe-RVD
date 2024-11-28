@@ -1,0 +1,227 @@
+{
+    "namespace": "studentApp",
+    "entities": [
+        {
+            "name": "Students",
+            "label": "Student",
+            "associations": [
+                {
+                    "name": "FavoriteGames",
+                    "target": "Games",
+                    "multiplicity": "many",
+                    "backAssociation": "students"
+                }
+            ],
+            "labelPlural": "Students",
+            "elements": [
+                {
+                    "name": "ID",
+                    "type": "UUID",
+                    "key": true,
+                    "label": ""
+                },
+                {
+                    "name": "studentID",
+                    "type": "String(50)",
+                    "label": "Student ID",
+                    "additionalInfo": "Unique identifier for each student",
+                    "essentialElement": true,
+                    "semanticKey": true
+                },
+                {
+                    "name": "firstName",
+                    "type": "String(50)",
+                    "label": "First Name",
+                    "additionalInfo": "First name of the student",
+                    "essentialElement": true
+                },
+                {
+                    "name": "lastName",
+                    "type": "String(50)",
+                    "label": "Last Name",
+                    "additionalInfo": "Last name of the student",
+                    "essentialElement": true
+                },
+                {
+                    "name": "email",
+                    "type": "String(100)",
+                    "label": "Email",
+                    "additionalInfo": "Email address of the student",
+                    "essentialElement": true
+                },
+                {
+                    "name": "age",
+                    "type": "Integer",
+                    "label": "Age",
+                    "additionalInfo": "Age of the student",
+                    "essentialElement": false
+                }
+            ]
+        },
+        {
+            "name": "Games",
+            "label": "Game",
+            "associations": [
+                {
+                    "name": "students",
+                    "target": "Students",
+                    "multiplicity": "one",
+                    "isComposition": false
+                }
+            ],
+            "labelPlural": "Games",
+            "elements": [
+                {
+                    "name": "ID",
+                    "type": "UUID",
+                    "key": true,
+                    "label": ""
+                },
+                {
+                    "name": "gameID",
+                    "type": "String(50)",
+                    "label": "Game ID",
+                    "additionalInfo": "Unique identifier for each game",
+                    "essentialElement": true,
+                    "semanticKey": true
+                },
+                {
+                    "name": "title",
+                    "type": "String(100)",
+                    "label": "Title",
+                    "additionalInfo": "Title of the game",
+                    "essentialElement": true
+                },
+                {
+                    "name": "genre",
+                    "type": "String(50)",
+                    "label": "Genre",
+                    "additionalInfo": "Genre of the game",
+                    "essentialElement": false
+                },
+                {
+                    "name": "releaseDate",
+                    "type": "Date",
+                    "label": "Release Date",
+                    "additionalInfo": "Release date of the game",
+                    "essentialElement": false
+                },
+                {
+                    "name": "studentID",
+                    "type": "String(50)",
+                    "label": "Student ID",
+                    "additionalInfo": "Identifier of the student who likes this game",
+                    "essentialElement": true
+                }
+            ]
+        }
+    ],
+    "service": {
+        "name": "studentAppSrv",
+        "path": "srv/service.cds"
+    },
+    "applications": [
+        {
+            "pages": [
+                {
+                    "type": "ListReport",
+                    "entityType": "Students",
+                    "listReportContent": {
+                        "loadDataOnAppLaunch": "Enabled",
+                        "tables": [
+                            {
+                                "title": "Students Overview",
+                                "id": "studentsTable",
+                                "baseEntityType": "Students",
+                                "columns": [
+                                    "studentID",
+                                    "firstName",
+                                    "lastName",
+                                    "email",
+                                    "age"
+                                ]
+                            }
+                        ],
+                        "filters": [
+                            "studentID",
+                            "firstName",
+                            "lastName",
+                            "email",
+                            "age"
+                        ]
+                    }
+                },
+                {
+                    "type": "ObjectPage",
+                    "entityType": "Students",
+                    "objectPageContent": {
+                        "tableSectionAssociations": [
+                            "FavoriteGames"
+                        ],
+                        "sections": [
+                            {
+                                "title": "Student Details",
+                                "id": "studentDetails",
+                                "isTableSection": false,
+                                "fields": [
+                                    "studentID",
+                                    "firstName",
+                                    "lastName",
+                                    "email",
+                                    "age"
+                                ]
+                            },
+                            {
+                                "title": "Favorite Games",
+                                "id": "favoriteGames",
+                                "isTableSection": true,
+                                "fields": [
+                                    "FavoriteGames/gameID",
+                                    "FavoriteGames/title",
+                                    "FavoriteGames/genre",
+                                    "FavoriteGames/releaseDate",
+                                    "FavoriteGames/studentID"
+                                ]
+                            }
+                        ],
+                        "tabs": [
+                            {
+                                "title": "Overview",
+                                "id": "overviewTab",
+                                "subsections": [
+                                    "studentDetails",
+                                    "favoriteGames"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ObjectPage",
+                    "entityType": "Games",
+                    "objectPageContent": {
+                        "tableSectionAssociations": [],
+                        "sections": [
+                            {
+                                "title": "Favorite Games",
+                                "id": "favoriteGamesSection",
+                                "isTableSection": true,
+                                "fields": []
+                            }
+                        ],
+                        "tabs": [
+                            {
+                                "title": "Games",
+                                "id": "gamesTab",
+                                "subsections": [
+                                    "favoriteGamesSection"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "name": "studentGames"
+        }
+    ]
+}

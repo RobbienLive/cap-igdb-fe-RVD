@@ -1,0 +1,8 @@
+ID;gameID;title;genre;releaseDate;studentID;students_ID
+3c28f834-3653-4a3a-a737-3921b563832d;G001;The Legend of Zelda;Adventure;2021-06-27;S001;f6119ad9-48a0-45bd-98b9-e93152a9331b
+a2f4e9f8-23db-4fff-8a91-db60078dad2c;G002;Super Mario Odyssey;Platformer;2021-06-27;S002;d0edb404-13ef-46bf-b549-531985fe0921
+307742d1-8b09-46d7-840a-0cbb25e0fb3f;G003;Minecraft;Sandbox;2021-06-27;S003;54457783-f78b-4dc4-b40c-948adabd1863
+81b617df-1487-436f-8c55-6a4f06cc49c6;G004;Fortnite;Battle Royale;2021-06-27;S004;cc2c3550-7fbe-4192-b73e-0eab0509a096
+d7a24715-ec25-43b7-b2c5-ec1e2402b549;G005;Among Us;Party;2021-06-27;S005;b409c148-f3a5-47a0-b9f3-e3f1e5b659d5
+9c4286e0-c940-4213-b48b-51024d162ac0;G006;Animal Crossing;Simulation;2021-06-27;S001;f6119ad9-48a0-45bd-98b9-e93152a9331b
+4e8b5ccd-d70f-4c2e-accf-4cfda8c2dc3d;G007;Call of Duty;Shooter;2021-06-27;S002;d0edb404-13ef-46bf-b549-531985fe0921

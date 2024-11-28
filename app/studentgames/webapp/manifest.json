@@ -1,0 +1,156 @@
+{
+    "_version": "1.65.0",
+    "sap.app": {
+        "id": "studentgames",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap/generator-fiori:lrop",
+            "version": "1.15.6",
+            "toolsId": "6252dac3-6912-483d-82d0-afe22685c2ef"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/odata/v4/student-app-srv/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [],
+                    "odataVersion": "4.0"
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.129.0",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.fe.templates": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "studentgames.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {
+                    "operationMode": "Server",
+                    "autoExpandSelect": true,
+                    "earlyRequests": true
+                }
+            },
+            "@i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "uri": "i18n/i18n.properties"
+            }
+        },
+        "resources": {
+            "css": []
+        },
+        "routing": {
+            "config": {},
+            "routes": [
+                {
+                    "pattern": ":?query:",
+                    "name": "StudentsList",
+                    "target": "StudentsList"
+                },
+                {
+                    "pattern": "Students({key}):?query:",
+                    "name": "StudentsObjectPage",
+                    "target": "StudentsObjectPage"
+                },
+                {
+                    "pattern": "Students({key})/FavoriteGames({key2}):?query:",
+                    "name": "GamesObjectPage",
+                    "target": "GamesObjectPage"
+                }
+            ],
+            "targets": {
+                "StudentsList": {
+                    "type": "Component",
+                    "id": "StudentsList",
+                    "name": "sap.fe.templates.ListReport",
+                    "options": {
+                        "settings": {
+                            "contextPath": "/Students",
+                            "variantManagement": "Page",
+                            "initialLoad": "Enabled",
+                            "navigation": {
+                                "Students": {
+                                    "detail": {
+                                        "route": "StudentsObjectPage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "StudentsObjectPage": {
+                    "type": "Component",
+                    "id": "StudentsObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "contextPath": "/Students",
+                            "navigation": {
+                                "FavoriteGames": {
+                                    "detail": {
+                                        "route": "GamesObjectPage"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "GamesObjectPage": {
+                    "type": "Component",
+                    "id": "GamesObjectPage",
+                    "name": "sap.fe.templates.ObjectPage",
+                    "options": {
+                        "settings": {
+                            "contextPath": "/Students/FavoriteGames"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "sap.fiori": {
+        "registrationIds": [],
+        "archeType": "transactional"
+    }
+}

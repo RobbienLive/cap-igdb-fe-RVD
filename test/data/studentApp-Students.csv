@@ -1,0 +1,6 @@
+ID;studentID;firstName;lastName;email;age
+f6119ad9-48a0-45bd-98b9-e93152a9331b;S001;John;Doe;john.doe@example.com;20
+d0edb404-13ef-46bf-b549-531985fe0921;S002;Jane;Smith;jane.smith@example.com;22
+54457783-f78b-4dc4-b40c-948adabd1863;S003;Michael;Brown;michael.brown@example.com;21
+cc2c3550-7fbe-4192-b73e-0eab0509a096;S004;Emily;Davis;emily.davis@example.com;23
+b409c148-f3a5-47a0-b9f3-e3f1e5b659d5;S005;David;Wilson;david.wilson@example.com;19

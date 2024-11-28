@@ -1,0 +1,987 @@
+2024-11-28T10:54:21.190Z [info] Project generation uses model: "gpt-4o", version: "latest"
+2024-11-28T10:54:21.190Z [info] 1/8: Generate CAP model via LLM
+2024-11-28T10:54:24.757Z [info] 
+==========LLM call for step "extractAppSkeleton":==========
+You help the user building a Fiori Elements application described in the user input.
+
+A Fiori Elements application typically starts with a ListReport page showing the data of the base entity of the application in a table.
+Details of a specific table row are shown in the ObjectPage. This first ObjectPage is therefore based on the base entity of the application.
+An ObjectPage can contain one or more table sections based on to-many associations of its entity type.
+The details of a table section row can be shown in an another ObjectPage based on the associations target entity.
+
+Your task is to find the entities (with their to-many associations) as well as the ObjectPages (with the to-many associations they use in table sections) described in the user input below.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "entities": {
+      "type": "array",
+      "description": "Define all entities and their to-many associations; entity properties will be determined later",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "UpperCamelCase, no spaces, plural, e.g. 'Orders'"
+          },
+          "label": {
+            "type": "string",
+            "description": "max two words, singular"
+          },
+          "associations": {
+            "type": "array",
+            "description": "Define to-many associations between entities",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "target": {
+                  "type": "string",
+                  "description": "Points to existing entity, value is entities.name"
+                }
+              },
+              "required": [
+                "name",
+                "target"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "labelPlural": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "label",
+          "associations",
+          "labelPlural"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "baseEntity": {
+      "type": "string",
+      "description": "base entity of ListReport page (if present) and first ObjectPage"
+    },
+    "noListReportPage": {
+      "type": "boolean",
+      "description": "true: no ListReport page will generated, e.g. for applications which start with an (input enabled) Object Page to enter data"
+    },
+    "objectPages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "description": "Entity that the ObjectPage is based on, the first ObjectPage is always based on base entity"
+          },
+          "tableSectionsAssociations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "to-many associations of page entity for table sections shown in the ObjectPage"
+          }
+        },
+        "required": [
+          "entityType"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "namespace": {
+      "type": "string",
+      "description": "lowerCamelCase, no spaces allowed"
+    },
+    "applicationName": {
+      "type": "string",
+      "description": "lowerCamelCase, no spaces allowed"
+    },
+    "userInputKind": {
+      "enum": [
+        "UserInterfaceFirst",
+        "DataModelFirst"
+      ],
+      "description": "use 'UserInterfaceFirst' if User input describes the app based on the user interface, i.e. how List Report and Object Pages should look like; use 'DataModelFirst' if User input describes the app based on its data model, i.e. its entities, their elements and associations"
+    }
+  },
+  "required": [
+    "entities",
+    "baseEntity",
+    "objectPages",
+    "namespace",
+    "applicationName",
+    "userInputKind"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+I want an application existing out of a minimal of two pages. The first one gives an overview of all students (Student) with all the CRUD functionality and the second page displays a student with all their favorite games.
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "entities": [
+    {
+      "name": "Students",
+      "label": "Student",
+      "associations": [
+        {
+          "name": "FavoriteGames",
+          "target": "Games"
+        }
+      ],
+      "labelPlural": "Students"
+    },
+    {
+      "name": "Games",
+      "label": "Game",
+      "associations": [],
+      "labelPlural": "Games"
+    }
+  ],
+  "baseEntity": "Students",
+  "noListReportPage": false,
+  "objectPages": [
+    {
+      "entityType": "Students",
+      "tableSectionsAssociations": [
+        "FavoriteGames"
+      ]
+    },
+    {
+      "entityType": "Games",
+      "tableSectionsAssociations": []
+    }
+  ],
+  "namespace": "studentApp",
+  "applicationName": "studentGames",
+  "userInputKind": "UserInterfaceFirst"
+}
+```
+2024-11-28T10:54:24.761Z [info] Step "switchBasedOnAppSkeleton": case 0 blocked! Evaluation details:
+ - JSONPath "$.model.applications[0].pages[0]" : [{"type":"ListReport","entityType":"Students"}]
+2024-11-28T10:54:24.761Z [info] Step "switchBasedOnAppSkeleton": case 1 blocked! Evaluation details:
+ - JSONPath "$.model.applications[0].pages[0].type" : ["ListReport"]
+2024-11-28T10:54:24.761Z [info] Step "switchBasedOnAppSkeleton": case 2 passed! Evaluation details:
+ - JSONPath "$.userInput.imageCount" : [0]
+2024-11-28T10:54:24.761Z [info] Step "runDataModelFirst": workflow "givenSkeletonExtractDataModelFirst" started
+"
+2024-11-28T10:54:32.147Z [info] 
+==========LLM call for step "extractEntitiesProperties":==========
+You help the user refining the DataModel for a Fiori Elements application described in the user input.
+
+The DataModel consists of the following entities and associations:
+- entity "Students" (with to-many associations to "Games")
+- entity "Games" (with to-one association to "Students")
+
+Your task is to find the properties for each entity.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entityName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "camelCase, no spaces"
+          },
+          "type": {
+            "type": "string",
+            "description": "Allowed values: String(50), Boolean, Integer, Decimal, Double, Date, Time, DateTime, Timestamp; String length can vary - i.e. String(20)"
+          },
+          "key": {
+            "type": "boolean",
+            "description": "max. one optional key per entity, only if this element is a semantic key and can uniquely identify the instance"
+          },
+          "essentialElement": {
+            "type": "boolean",
+            "description": "'true' only if element is marked as essential'"
+          },
+          "additionalInfo": {
+            "type": "string",
+            "description": "All additional information from user input, e.g. user description, example values; also consider referenced parts in the user input"
+          }
+        },
+        "required": [
+          "entityName",
+          "name",
+          "type",
+          "additionalInfo"
+        ],
+        "additionalProperties": false
+      },
+      "description": "At least 5 realistic elements (unless explicitly specified)"
+    }
+  },
+  "required": [
+    "elements"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+I want an application existing out of a minimal of two pages. The first one gives an overview of all students (Student) with all the CRUD functionality and the second page displays a student with all their favorite games.
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "elements": [
+    {
+      "entityName": "Students",
+      "name": "studentID",
+      "type": "String(50)",
+      "key": true,
+      "essentialElement": true,
+      "additionalInfo": "Unique identifier for each student"
+    },
+    {
+      "entityName": "Students",
+      "name": "firstName",
+      "type": "String(50)",
+      "essentialElement": true,
+      "additionalInfo": "First name of the student"
+    },
+    {
+      "entityName": "Students",
+      "name": "lastName",
+      "type": "String(50)",
+      "essentialElement": true,
+      "additionalInfo": "Last name of the student"
+    },
+    {
+      "entityName": "Students",
+      "name": "email",
+      "type": "String(100)",
+      "essentialElement": true,
+      "additionalInfo": "Email address of the student"
+    },
+    {
+      "entityName": "Students",
+      "name": "age",
+      "type": "Integer",
+      "essentialElement": false,
+      "additionalInfo": "Age of the student"
+    },
+    {
+      "entityName": "Games",
+      "name": "gameID",
+      "type": "String(50)",
+      "key": true,
+      "essentialElement": true,
+      "additionalInfo": "Unique identifier for each game"
+    },
+    {
+      "entityName": "Games",
+      "name": "title",
+      "type": "String(100)",
+      "essentialElement": true,
+      "additionalInfo": "Title of the game"
+    },
+    {
+      "entityName": "Games",
+      "name": "genre",
+      "type": "String(50)",
+      "essentialElement": false,
+      "additionalInfo": "Genre of the game"
+    },
+    {
+      "entityName": "Games",
+      "name": "releaseDate",
+      "type": "Date",
+      "essentialElement": false,
+      "additionalInfo": "Release date of the game"
+    },
+    {
+      "entityName": "Games",
+      "name": "studentID",
+      "type": "String(50)",
+      "essentialElement": true,
+      "additionalInfo": "Identifier of the student who likes this game"
+    }
+  ]
+}
+```
+2024-11-28T10:54:37.750Z [info] 
+==========LLM call for step "extractPropertyDetails":==========
+Here is a list of property names, each with the property description that was extracted from previous user input:
+
+Students_studentID: Unique identifier for each student
+Students_firstName: First name of the student
+Students_lastName: Last name of the student
+Students_email: Email address of the student
+Students_age: Age of the student
+Games_gameID: Unique identifier for each game
+Games_title: Title of the game
+Games_genre: Genre of the game
+Games_releaseDate: Release date of the game
+Games_studentID: Identifier of the student who likes this game
+
+For each property analyze the description with respect to what property values can be expected.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "properties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "hasFixedValuesList": {
+            "type": "boolean",
+            "description": "Only limited list of values expected, e.g. property is representing e.g. a type, status, category, unit, organization"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific property values mentioned as part of the description. Those could be possible values or example values. Don't make up or invent any values"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "properties"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+----------Response:----------
+```json
+{
+  "properties": [
+    {
+      "name": "Students_studentID",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Students_firstName",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Students_lastName",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Students_email",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Students_age",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Games_gameID",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Games_title",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Games_genre",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Games_releaseDate",
+      "hasFixedValuesList": false,
+      "values": []
+    },
+    {
+      "name": "Games_studentID",
+      "hasFixedValuesList": false,
+      "values": []
+    }
+  ]
+}
+```
+2024-11-28T10:54:37.750Z [info] Step "switchSimpleOrComplexApp": case 0 blocked! Evaluation details:
+ - JSONPath "$.model.applications[0].pages[2]" : [{"type":"ObjectPage","entityType":"Games","objectPageContent":{"tableSectionAssociations":[]}}]
+ - JSONPath "$.userInput.lineCount" : [2]
+2024-11-28T10:54:37.751Z [info] Step "switchSimpleOrComplexApp": no condition met - running default steps
+2024-11-28T10:54:37.751Z [info] Step "runFlowForComplexApp": workflow "givenSkeletonExtractComplexApp" started
+"
+2024-11-28T10:54:37.751Z [info] Step "classifyByPages" SKIPPED (5 lines or less):
+I want an application existing out of a minimal of two pages. The first one gives an overview of all students (Student) with all the CRUD functionality and the second page displays a student with all their favorite games.
+
+2024-11-28T10:54:37.751Z [info] Step "loopOverPages": looping over 3 entries
+"
+2024-11-28T10:54:37.752Z [info] Step "loopOverPages" index 0: pageType=ListReport, entityType=Students
+2024-11-28T10:54:37.752Z [info] Step "ifListReportPage": case 0 passed! Evaluation details:
+ - Variable "pageType" : "ListReport"
+2024-11-28T10:54:40.115Z [info] 
+==========LLM call for step "extractListReport":==========
+A Fiori Elements Application has the following pages:
+ - ListReport page for "Students"
+ - ObjectPage for "Students"
+ - ObjectPage for "Games"
+
+Available entities with their associations and elements are:
+Entity "Students"
+   Properties:
+       studentID: Unique identifier for each student
+       firstName: First name of the student
+       lastName: Last name of the student
+       email: Email address of the student
+       age: Age of the student
+   Associations:
+       FavoriteGames: association to many entities Games
+Entity "Games"
+   Properties:
+       gameID: Unique identifier for each game
+       title: Title of the game
+       genre: Genre of the game
+       releaseDate: Release date of the game
+       studentID: Identifier of the student who likes this game
+   Associations:
+       students: association to single entity Students
+
+The user input below describes the details of the ListReport page (i.e. its filters, tables or views with their columns).
+
+Your task is to help the user defining the ListReport page.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "loadDataOnAppLaunch": {
+      "type": "string",
+      "enum": [
+        "Auto",
+        "Disabled",
+        "Enabled"
+      ],
+      "description": "'Auto': no explicit user input to load the data after start or an explicit user input to set InitialLoad for table to Auto; 'Disabled': An initial load of data does not occur at app start and the user has to actively click the Go button;  'Enabled': An initial load of data occurs automatically after start  (list is visible without pressing the GO Button)."
+    },
+    "tables": {
+      "type": "array",
+      "description": "tables (views) expected in user input",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "baseEntityType": {
+            "type": "string",
+            "description": "base entity type for the table"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "propertyPaths for columns"
+          }
+        },
+        "required": [
+          "title",
+          "baseEntityType",
+          "columns"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "filters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "propertyPaths for filters specified in user input. If not specified, empty array"
+    }
+  },
+  "required": [
+    "tables"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+I want an application existing out of a minimal of two pages.
+The first one gives an overview of all students (Student) with all the CRUD functionality and the second page displays a student with all their favorite games.
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "loadDataOnAppLaunch": "Enabled",
+  "tables": [
+    {
+      "title": "Students Overview",
+      "id": "studentsTable",
+      "baseEntityType": "Students",
+      "columns": [
+        "studentID",
+        "firstName",
+        "lastName",
+        "email",
+        "age"
+      ]
+    }
+  ],
+  "filters": [
+    "studentID",
+    "firstName",
+    "lastName",
+    "email",
+    "age"
+  ]
+}
+```
+2024-11-28T10:54:40.117Z [info] Step "loopOverPages" index 1: pageType=ObjectPage, entityType=Students
+2024-11-28T10:54:40.117Z [info] Step "ifListReportPage": case 0 blocked! Evaluation details:
+ - Variable "pageType" : "ObjectPage"
+2024-11-28T10:54:40.117Z [info] Step "ifListReportPage": no condition met - running default steps
+2024-11-28T10:54:42.727Z [info] 
+==========LLM call for step "extractSingleObjectPageOfMany":==========
+The user input below describes a Fiori Elements Application with the following pages:
+ - ListReport page for "Students"
+ - ObjectPage for "Students"
+ - ObjectPage for "Games"
+
+Your task is to find the details of the ObjectPage for "Students".
+The base entity of the ObjectPage is Students.
+This ObjectPage can contain tabs and/or sections which in turn contain tables and fields.
+It must contain table sections containing data for associated entity "Games" (via association FavoriteGames);
+
+The underlying data model allows the following propertyPaths:
+ - studentID: Student ID (of Student)
+ - firstName: First Name (of Student)
+ - lastName: Last Name (of Student)
+ - email: Email (of Student)
+ - age: Age (of Student)
+ - FavoriteGames/gameID: Game ID (of many associated Game)
+ - FavoriteGames/title: Title (of many associated Game)
+ - FavoriteGames/genre: Genre (of many associated Game)
+ - FavoriteGames/releaseDate: Release Date (of many associated Game)
+ - FavoriteGames/studentID: Student ID (of many associated Game)
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isTableSection": {
+            "type": "boolean",
+            "description": "if true, 'fields' represent columns of the table section and propertyPaths need to start with 1:n association"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "propertyPath"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "fields"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tabs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "subsections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "list of sections ids relevant for the tab"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "subsections"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "sections",
+    "tabs"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+I want an application existing out of a minimal of two pages.
+The first one gives an overview of all students (Student) with all the CRUD functionality and the second page displays a student with all their favorite games.
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "sections": [
+    {
+      "title": "Student Details",
+      "id": "studentDetails",
+      "isTableSection": false,
+      "fields": [
+        "studentID",
+        "firstName",
+        "lastName",
+        "email",
+        "age"
+      ]
+    },
+    {
+      "title": "Favorite Games",
+      "id": "favoriteGames",
+      "isTableSection": true,
+      "fields": [
+        "FavoriteGames/gameID",
+        "FavoriteGames/title",
+        "FavoriteGames/genre",
+        "FavoriteGames/releaseDate",
+        "FavoriteGames/studentID"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Overview",
+      "id": "overviewTab",
+      "subsections": [
+        "studentDetails",
+        "favoriteGames"
+      ]
+    }
+  ]
+}
+```
+2024-11-28T10:54:42.728Z [info] Step "loopOverPages" index 2: pageType=ObjectPage, entityType=Games
+2024-11-28T10:54:42.728Z [info] Step "ifListReportPage": case 0 blocked! Evaluation details:
+ - Variable "pageType" : "ObjectPage"
+2024-11-28T10:54:42.728Z [info] Step "ifListReportPage": no condition met - running default steps
+2024-11-28T10:54:44.969Z [info] 
+==========LLM call for step "extractSingleObjectPageOfMany":==========
+The user input below describes a Fiori Elements Application with the following pages:
+ - ListReport page for "Students"
+ - ObjectPage for "Students"
+ - ObjectPage for "Games"
+
+Your task is to find the details of the ObjectPage for "Games".
+The base entity of the ObjectPage is Students.
+This ObjectPage can contain tabs and/or sections which in turn contain tables and fields.
+It must contain table sections containing data for associated entity "Games" (via association FavoriteGames);
+
+The underlying data model allows the following propertyPaths:
+ - gameID: Game ID (of Game)
+ - title: Title (of Game)
+ - genre: Genre (of Game)
+ - releaseDate: Release Date (of Game)
+ - studentID: Student ID (of Game)
+ - students/studentID: Student ID (of single associated Student)
+ - students/firstName: First Name (of single associated Student)
+ - students/lastName: Last Name (of single associated Student)
+ - students/email: Email (of single associated Student)
+ - students/age: Age (of single associated Student)
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isTableSection": {
+            "type": "boolean",
+            "description": "if true, 'fields' represent columns of the table section and propertyPaths need to start with 1:n association"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "propertyPath"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "fields"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tabs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "subsections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "list of sections ids relevant for the tab"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "subsections"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "sections",
+    "tabs"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+I want an application existing out of a minimal of two pages.
+The first one gives an overview of all students (Student) with all the CRUD functionality and the second page displays a student with all their favorite games.
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "sections": [
+    {
+      "title": "Favorite Games",
+      "id": "favoriteGamesSection",
+      "isTableSection": true,
+      "fields": [
+        "FavoriteGames/gameID",
+        "FavoriteGames/title",
+        "FavoriteGames/genre",
+        "FavoriteGames/releaseDate"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Games",
+      "id": "gamesTab",
+      "subsections": [
+        "favoriteGamesSection"
+      ]
+    }
+  ]
+}
+```
+2024-11-28T10:54:44.970Z [info] Step "ifCodeListsPresent": case 0 blocked! Evaluation details:
+ - JSONPath "$.model.entities[*].elements[*].values[*]" : []
+2024-11-28T10:54:44.970Z [info] 2/8: Build CDS files
+2024-11-28T10:54:45.484Z [info] 3/8: Checking staging project root folder "/home/user/.fioritools/fiori-tools-ai"
+2024-11-28T10:54:45.986Z [info] 4/8: Generating mock data
+2024-11-28T10:54:51.401Z [info] 
+==========LLM call for data generation:==========
+
+For the following list of entities, create data for the empty CSV files.
+Entity "Students" - Properties:
+    studentID: String(50), Unique identifier for each student
+    firstName: String(50), First name of the student
+    lastName: String(50), Last name of the student
+    email: String(100), Email address of the student
+    age: Integer, Age of the student
+
+Entity "Games" - Properties:
+    gameID: String(50), Unique identifier for each game
+    title: String(100), Title of the game
+    genre: String(50), Genre of the game
+    releaseDate: Date, Release date of the game
+    studentID: String(50), Identifier of the student who likes this game
+    students_studentID: String(50), studentID of associated Students
+
+Empty CSV files in json format (only generate content for these files!):
+{"Students.csv":"studentID;firstName;lastName;email;age","Games.csv":"gameID;title;genre;releaseDate;studentID;students_studentID"}
+
+Rules:
+    - Take over the given header line, do not invent new columns!
+    - For a given file, add rows, add '\n' characters before each row but don't break the JSON string
+    - Do not generate rows with same key values, they must be unique!
+    - Make sure that associations match, i.e. a field containing "Name of the associated Customer" must contain an existing Name of entity Customer
+    - Always use ";" as a delimiter in CSV files
+    - The result must be proper JSON format so it can be parsed, don't break JSON strings within, don't add quotes around values.
+    - Create about 5 rows for the first csv, 7 for the second and so on
+    - All values must be realistic with meaningful content, e.g. 'Laptop Screen' and not just placeholder values with incremented numbers like 'Product 1', 'Product 2' etc.
+    
+Use format for values:
+  String(50): string no longer than 50 characters
+  Integer, Double: only numbers, no special symbols
+  Date: 2021-06-27
+    
+
+Example output (Do NOT include in output!):
+```json
+{"Blogs":"blogID;title;description;createdDateTime;views\nBlog1;Tech Blog;A blog about the latest technology trends.;2023-06-27T14:52:23Z;1000\nBlog2;Fashion Blog;Explore the world of fashion and style.;2023-06-27T14:52:23Z;500","Posts":"postID;title;content;publishDate;likes;comments;blogID\n1;The Future of Artificial Intelligence;Artificial intelligence is shaping the future of technology.;2023-06-27;50;10;Blog1
+2;Summer Fashion Trends;Discover the hottest fashion trends for the summer season.;2023-06-27;100;20;Blog2\n3;Must-Have Accessories;10 must-have accessories for the upcoming season;2023-06-27;100;20;Blog2"}
+```
+Output ONLY the json contents for the csv files and try to be as accurate as possible.    
+
+
+
+----------Response:----------
+```json
+{"Students.csv":"studentID;firstName;lastName;email;age\nS001;John;Doe;john.doe@example.com;20\nS002;Jane;Smith;jane.smith@example.com;22\nS003;Michael;Brown;michael.brown@example.com;21\nS004;Emily;Davis;emily.davis@example.com;23\nS005;David;Wilson;david.wilson@example.com;19","Games.csv":"gameID;title;genre;releaseDate;studentID;students_studentID\nG001;The Legend of Zelda;Adventure;2021-06-27;S001;S001\nG002;Super Mario Odyssey;Platformer;2021-06-27;S002;S002\nG003;Minecraft;Sandbox;2021-06-27;S003;S003\nG004;Fortnite;Battle Royale;2021-06-27;S004;S004\nG005;Among Us;Party;2021-06-27;S005;S005\nG006;Animal Crossing;Simulation;2021-06-27;S001;S001\nG007;Call of Duty;Shooter;2021-06-27;S002;S002"}
+```
+2024-11-28T10:54:51.403Z [info] 5/8: Initializing CAP project
+2024-11-28T10:54:52.364Z [info] 6/8: Copying files to CAP project
+2024-11-28T10:54:52.870Z [info] 7/8: Generating applications
+2024-11-28T10:55:16.632Z [info] 8/8: Installing node module dependencies

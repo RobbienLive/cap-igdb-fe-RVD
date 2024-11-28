@@ -1,0 +1,1 @@
+I want an application existing out of a minimal of two pages. The first one gives an overview of all students (Student) with all the CRUD functionality and the second page displays a student with all their favorite games.
