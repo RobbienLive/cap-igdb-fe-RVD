@@ -63,14 +63,17 @@ annotate studentAppSrv.Students with @UI.FieldGroup #studentDetails: {
 };
 
 
-annotate studentAppSrv.Games with @UI.LineItem #favoriteGames: [
-    { $Type: 'UI.DataField', Value: gameID },
-    { $Type: 'UI.DataField', Value: title },
-    { $Type: 'UI.DataField', Value: genre },
-    { $Type: 'UI.DataField', Value: releaseDate },
-    { $Type: 'UI.DataField', Value: studentID }
-
-  ];
+annotate studentAppSrv.Games with @(
+    UI.LineItem #favoriteGames: [
+        { $Type: 'UI.DataField', Value: gameID },
+        { $Type: 'UI.DataField', Value: title },
+        { $Type: 'UI.DataField', Value: genre },
+        { $Type: 'UI.DataField', Value: releaseDate },
+        // { $Type: 'UI.DataField', Value: studentID }
+    
+      ],
+    UI.DeleteHidden : true,
+    );
 
 
 annotate studentAppSrv.Students with @UI.Facets: [
@@ -128,8 +131,8 @@ annotate studentAppSrv.Games with @UI.HeaderFacets: [
  { $Type : 'UI.ReferenceFacet', Target : '@UI.DataPoint#studentID', ID: 'StudentID' }
 ];
 annotate studentAppSrv.Games with @UI.HeaderInfo: {
-  TypeName: 'Game',
-  TypeNamePlural: 'Games',
+  TypeName: 'Favorite Games',
+  TypeNamePlural: 'Favorite Games',
   Title: { Value: gameID }
 };
 annotate studentAppSrv.Games with {
@@ -140,9 +143,9 @@ annotate studentAppSrv.Games with {
   gameID @Common.Label: 'Game ID';
   title @Common.Label: 'Title';
   genre @Common.Label: 'Genre';
-  releaseDate @Common.Label: 'Release Date';
-  studentID @Common.Label: 'Student ID';
-  students @Common.Label: 'Student'
+  // releaseDate @Common.Label: 'Release Date';
+  // studentID @Common.Label: 'Student ID';
+  // students @Common.Label: 'Student'
 };
 annotate studentAppSrv.Games with {
   ID @Common.Text: { $value: gameID, ![@UI.TextArrangement]: #TextOnly };
@@ -157,8 +160,8 @@ annotate studentAppSrv.Games with @UI.LineItem: [
     { $Type: 'UI.DataField', Value: title },
     { $Type: 'UI.DataField', Value: genre },
     { $Type: 'UI.DataField', Value: releaseDate },
-    { $Type: 'UI.DataField', Value: studentID },
-    { $Type: 'UI.DataField', Label: 'Student', Value: students_ID }
+    // { $Type: 'UI.DataField', Value: studentID },
+    // { $Type: 'UI.DataField', Label: 'Student', Value: students_ID }
 ];
 annotate studentAppSrv.Games with @UI.FieldGroup #Main: {
   $Type: 'UI.FieldGroupType', Data: [
@@ -167,8 +170,8 @@ annotate studentAppSrv.Games with @UI.FieldGroup #Main: {
     { $Type: 'UI.DataField', Value: title },
     { $Type: 'UI.DataField', Value: genre },
     { $Type: 'UI.DataField', Value: releaseDate },
-    { $Type: 'UI.DataField', Value: studentID },
-    { $Type: 'UI.DataField', Label: 'Student', Value: students_ID }
+    // { $Type: 'UI.DataField', Value: studentID },
+    // { $Type: 'UI.DataField', Label: 'Student', Value: students_ID }
 ]};
 annotate studentAppSrv.Games with @UI.Facets: [
   { $Type: 'UI.ReferenceFacet', ID: 'Main', Label: 'General Information', Target: '@UI.FieldGroup#Main' }
